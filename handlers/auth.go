@@ -124,7 +124,7 @@ func Login(c *fiber.Ctx) error {
 		Status:  "success",
 		Message: "Login successful",
 		Data: models.AuthData{
-			Token: token,
+			Token: "Bearer " + token,
 			User: models.AuthUser{
 				ID:        user.ID,
 				Email:     user.Email,

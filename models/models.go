@@ -28,7 +28,7 @@ type Note struct {
 	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	Title       string    `json:"title" gorm:"not null"`
 	Content     string    `json:"content"`
-	ImagePath   string    `json:"image_path,omitempty"`
+	ImagePath   string    `json:"-" gorm:"column:image_path"`
 	ImageURL    string    `json:"image_url,omitempty" gorm:"-"`
 	UserID      uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
 	CreatedAt   time.Time `json:"created_at"`

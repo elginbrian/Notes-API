@@ -520,9 +520,6 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "image_path": {
-                    "type": "string"
-                },
                 "image_url": {
                     "type": "string"
                 },

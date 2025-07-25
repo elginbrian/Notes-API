@@ -37,8 +37,8 @@ func GetNotes(c *fiber.Ctx) error {
 
 	for i := range notes {
 		if notes[i].ImagePath != "" {
-			notes[i].ImageURL = fmt.Sprintf("%s://%s/uploads/%s", 
-				c.Protocol(), c.Get("Host"), filepath.Base(notes[i].ImagePath))
+			notes[i].ImageURL = fmt.Sprintf("https://%s/uploads/%s", 
+				c.Get("Host"), filepath.Base(notes[i].ImagePath))
 		}
 	}
 
@@ -78,8 +78,8 @@ func GetNote(c *fiber.Ctx) error {
 	}
 
 	if note.ImagePath != "" {
-		note.ImageURL = fmt.Sprintf("%s://%s/uploads/%s", 
-			c.Protocol(), c.Get("Host"), filepath.Base(note.ImagePath))
+		note.ImageURL = fmt.Sprintf("https://%s/uploads/%s", 
+			c.Get("Host"), filepath.Base(note.ImagePath))
 	}
 
 	return c.JSON(models.NoteSuccessResponse{
@@ -181,11 +181,17 @@ func CreateNote(c *fiber.Ctx) error {
 	}
 
 	if note.ImagePath != "" {
-		note.ImageURL = fmt.Sprintf("%s://%s/uploads/%s", 
-			c.Protocol(), c.Get("Host"), filepath.Base(note.ImagePath))
+		note.ImageURL = fmt.Sprintf("https://%s/uploads/%s", 
+			c.Get("Host"), filepath.Base(note.ImagePath))
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(note)
+	return c.Status(fiber.StatusCreated).JSON(models.NoteSuccessResponse{
+		Status:  "success",
+		Message: "Note created successfully",
+		Data: models.NoteData{
+			Note: note,
+		},
+	})
 }
 
 // UpdateNote godoc
@@ -276,8 +282,8 @@ func UpdateNote(c *fiber.Ctx) error {
 	}
 
 	if note.ImagePath != "" {
-		note.ImageURL = fmt.Sprintf("%s://%s/uploads/%s", 
-			c.Protocol(), c.Get("Host"), filepath.Base(note.ImagePath))
+		note.ImageURL = fmt.Sprintf("https://%s/uploads/%s", 
+			c.Get("Host"), filepath.Base(note.ImagePath))
 	}
 
 	return c.JSON(models.NoteSuccessResponse{
