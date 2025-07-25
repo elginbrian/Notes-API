@@ -1,10 +1,12 @@
 package routes
 
 import (
+	"log"
 	"notes-api/handlers"
 	"notes-api/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func SetupRoutes(app *fiber.App) {
@@ -29,6 +31,24 @@ func SetupRoutes(app *fiber.App) {
 					"delete": "DELETE /api/notes/:id",
 				},
 			},
+		})
+	})
+
+	// Swagger documentation routes (order matters!)
+	// Redirect /swagger to /swagger/ (must be before wildcard)
+	app.Get("/swagger", func(c *fiber.Ctx) error {
+		log.Println("Swagger redirect accessed")
+		return c.Redirect("/swagger/")
+	})
+	
+	// Swagger UI wildcard route
+	app.Get("/swagger/*", fiberSwagger.WrapHandler)
+
+	// Debug route to check if docs are accessible
+	app.Get("/debug/docs", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"message": "Docs debug endpoint",
+			"swagger_files_exist": "Check if docs directory exists",
 		})
 	})
 

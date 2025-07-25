@@ -37,12 +37,17 @@
 
 **Problem**: 404 error when accessing `/swagger` or `https://notes.elginbrian.com/swagger`
 
-**Root Cause**: Swagger documentation files (`docs/`) were not being included in the Docker image.
+**Root Cause**: Multiple issues:
+
+1. Swagger documentation files (`docs/`) were not being included in the Docker image
+2. Route registration order conflict between main.go and routes.go
+3. Wildcard route (`/swagger/*`) was being registered before specific route (`/swagger`)
 
 **Solutions Applied**:
 
 - ✅ Fixed Dockerfile to generate and copy Swagger docs during build
-- ✅ Added redirect from `/swagger` to `/swagger/`
+- ✅ Moved all Swagger routes to routes.go to avoid conflicts
+- ✅ Fixed route registration order (specific routes before wildcard routes)
 - ✅ Added debug logging for Swagger routes
 - ✅ Ensured proper route configuration
 
@@ -150,11 +155,27 @@ docker-compose exec app cat docs/swagger.json | head -20
 docker-compose logs app | grep -i swagger
 ```
 
-### 5. Rebuild with no cache
+### 5. Rebuild with no cache (REQUIRED after route fixes)
 
 ```bash
+# Stop all services
 docker-compose down
-docker-compose up --build --no-cache
+
+# Remove existing images to force rebuild
+docker-compose build --no-cache
+
+# Start services
+docker-compose up -d
+
+# Check logs for any errors
+docker-compose logs -f app
+```
+
+### 6. Verify route registration order
+
+```bash
+# Check if the redirect route is being hit
+docker-compose logs app | grep "Swagger redirect"
 ```
 
 ## Common Issues & Solutions

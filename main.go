@@ -26,7 +26,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
-	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func main() {
@@ -63,23 +62,6 @@ func main() {
 	// Serve static files (uploaded images)
 	app.Static("/uploads", "./uploads")
 
-	// Swagger documentation
-	app.Get("/swagger/*", fiberSwagger.WrapHandler)
-	
-	// Redirect /swagger to /swagger/
-	app.Get("/swagger", func(c *fiber.Ctx) error {
-		log.Println("Swagger redirect accessed")
-		return c.Redirect("/swagger/")
-	})
-
-	// Debug route to check if docs are accessible
-	app.Get("/debug/docs", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"message": "Docs debug endpoint",
-			"swagger_files_exist": "Check if docs directory exists",
-		})
-	})
-
 	// Health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -88,7 +70,7 @@ func main() {
 		})
 	})
 
-	// Setup routes
+	// Setup routes (includes Swagger)
 	routes.SetupRoutes(app)
 
 	// Get port from environment or default to 3000
