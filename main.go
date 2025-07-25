@@ -65,6 +65,11 @@ func main() {
 
 	// Swagger documentation
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
+	
+	// Redirect /swagger to /swagger/
+	app.Get("/swagger", func(c *fiber.Ctx) error {
+		return c.Redirect("/swagger/")
+	})
 
 	// Health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
