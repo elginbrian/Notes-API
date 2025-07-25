@@ -20,9 +20,9 @@ import (
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} map[string][]models.Note "List of notes"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Success 200 {object} models.NotesResponse "List of notes" 
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/notes [get]
 func GetNotes(c *fiber.Ctx) error {
 	userID := middleware.GetUserID(c)
@@ -55,9 +55,9 @@ func GetNotes(c *fiber.Ctx) error {
 // @Security BearerAuth
 // @Param id path string true "Note ID"
 // @Success 200 {object} models.Note "Note details"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 404 {object} map[string]string "Note not found"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 404 {object} models.ErrorResponse "Note not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/notes/{id} [get]
 func GetNote(c *fiber.Ctx) error {
 	userID := middleware.GetUserID(c)
@@ -89,9 +89,9 @@ func GetNote(c *fiber.Ctx) error {
 // @Param content formData string false "Note content"
 // @Param image formData file false "Image file (JPEG, PNG, GIF)"
 // @Success 201 {object} models.Note "Note created successfully"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 400 {object} models.ErrorResponse "Bad request"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/notes [post]
 func CreateNote(c *fiber.Ctx) error {
 	userID := middleware.GetUserID(c)
@@ -181,10 +181,10 @@ func CreateNote(c *fiber.Ctx) error {
 // @Param content formData string false "Note content"
 // @Param image formData file false "Image file (JPEG, PNG, GIF)"
 // @Success 200 {object} models.Note "Note updated successfully"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 404 {object} map[string]string "Note not found"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 400 {object} models.ErrorResponse "Bad request"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 404 {object} models.ErrorResponse "Note not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/notes/{id} [put]
 func UpdateNote(c *fiber.Ctx) error {
 	userID := middleware.GetUserID(c)
@@ -266,10 +266,10 @@ func UpdateNote(c *fiber.Ctx) error {
 // @Produce json
 // @Security BearerAuth
 // @Param id path string true "Note ID"
-// @Success 200 {object} map[string]string "Note deleted successfully"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 404 {object} map[string]string "Note not found"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Success 200 {object} models.MessageResponse "Note deleted successfully"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
+// @Failure 404 {object} models.ErrorResponse "Note not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/notes/{id} [delete]
 func DeleteNote(c *fiber.Ctx) error {
 	userID := middleware.GetUserID(c)

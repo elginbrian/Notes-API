@@ -19,9 +19,9 @@ import (
 // @Produce json
 // @Param request body models.RegisterRequest true "User registration data"
 // @Success 201 {object} models.AuthResponse "User registered successfully"
-// @Failure 400 {object} map[string]string "Invalid request body"
-// @Failure 409 {object} map[string]string "User already exists"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 400 {object} models.ErrorResponse "Invalid request body" 
+// @Failure 409 {object} models.ErrorResponse "User already exists"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/auth/register [post]
 func Register(c *fiber.Ctx) error {
 	var req models.RegisterRequest
@@ -82,9 +82,9 @@ func Register(c *fiber.Ctx) error {
 // @Produce json
 // @Param request body models.LoginRequest true "User login credentials"
 // @Success 200 {object} models.AuthResponse "Login successful"
-// @Failure 400 {object} map[string]string "Invalid request body"
-// @Failure 401 {object} map[string]string "Invalid credentials"
-// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 400 {object} models.ErrorResponse "Invalid request body"
+// @Failure 401 {object} models.ErrorResponse "Invalid credentials"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/auth/login [post]
 func Login(c *fiber.Ctx) error {
 	var req models.LoginRequest

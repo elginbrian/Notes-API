@@ -55,3 +55,16 @@ type AuthResponse struct {
 	Token string `json:"token"`
 	User  User   `json:"user"`
 }
+
+// Response models for Swagger documentation
+type NotesResponse struct {
+	Notes []Note `json:"notes"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type MessageResponse struct {
+	Message string `json:"message"`
+}
