@@ -98,7 +98,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User registered successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthSuccessResponse"
+                            "$ref": "#/definitions/models.MessageSuccessResponse"
                         }
                     },
                     "400": {

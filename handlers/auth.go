@@ -18,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body models.RegisterRequest true "User registration data"
-// @Success 201 {object} models.AuthSuccessResponse "User registered successfully"
+// @Success 201 {object} models.MessageSuccessResponse "User registered successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"
 // @Failure 409 {object} models.ErrorResponse "User already exists"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
@@ -64,27 +64,11 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
-	// Generate JWT token
-	token, err := generateJWT(user.ID.String())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
-			Status: "error",
-			Error:  "Failed to generate token",
-		})
-	}
-
-	return c.Status(fiber.StatusCreated).JSON(models.AuthSuccessResponse{
+	return c.Status(fiber.StatusCreated).JSON(models.MessageSuccessResponse{
 		Status:  "success",
 		Message: "User registered successfully",
-		Data: models.AuthData{
-			Token: token,
-			User: models.AuthUser{
-				ID:        user.ID,
-				Email:     user.Email,
-				Name:      user.Name,
-				CreatedAt: user.CreatedAt,
-				UpdatedAt: user.UpdatedAt,
-			},
+		Data: models.MessageData{
+			Message: "User account created. Please login to get your access token.",
 		},
 	})
 }
