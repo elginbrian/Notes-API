@@ -68,7 +68,16 @@ func main() {
 	
 	// Redirect /swagger to /swagger/
 	app.Get("/swagger", func(c *fiber.Ctx) error {
+		log.Println("Swagger redirect accessed")
 		return c.Redirect("/swagger/")
+	})
+
+	// Debug route to check if docs are accessible
+	app.Get("/debug/docs", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"message": "Docs debug endpoint",
+			"swagger_files_exist": "Check if docs directory exists",
+		})
 	})
 
 	// Health check endpoint

@@ -8,7 +8,7 @@
 
 **Solution**: Added a root endpoint that provides API information and navigation.
 
-**Now available at**: `http://178.128.61.145:3011/`
+**Now available at**: `https://notes.elginbrian.com/`
 
 ```json
 {
@@ -35,18 +35,22 @@
 
 ### 2. Swagger Documentation Access
 
-**Problem**: 404 error when accessing `/swagger`
+**Problem**: 404 error when accessing `/swagger` or `https://notes.elginbrian.com/swagger`
+
+**Root Cause**: Swagger documentation files (`docs/`) were not being included in the Docker image.
 
 **Solutions Applied**:
 
-- Added redirect from `/swagger` to `/swagger/`
-- Ensured proper Swagger route configuration
-- Regenerated Swagger documentation
+- ✅ Fixed Dockerfile to generate and copy Swagger docs during build
+- ✅ Added redirect from `/swagger` to `/swagger/`
+- ✅ Added debug logging for Swagger routes
+- ✅ Ensured proper route configuration
 
 **Access Points**:
 
-- `http://178.128.61.145:3011/swagger/` (main Swagger UI)
-- `http://178.128.61.145:3011/swagger` (redirects to above)
+- `https://notes.elginbrian.com/swagger/` (main Swagger UI)
+- `https://notes.elginbrian.com/swagger` (redirects to above)
+- `https://notes.elginbrian.com/debug/docs` (debug endpoint)
 
 ## Available Endpoints
 
@@ -75,13 +79,13 @@
 ### 1. Health Check
 
 ```bash
-curl http://178.128.61.145:3011/health
+curl https://notes.elginbrian.com/health
 ```
 
 ### 2. Register a User
 
 ```bash
-curl -X POST http://178.128.61.145:3011/api/auth/register \
+curl -X POST https://notes.elginbrian.com/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Test User",
@@ -93,7 +97,7 @@ curl -X POST http://178.128.61.145:3011/api/auth/register \
 ### 3. Login
 
 ```bash
-curl -X POST http://178.128.61.145:3011/api/auth/login \
+curl -X POST https://notes.elginbrian.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -103,7 +107,7 @@ curl -X POST http://178.128.61.145:3011/api/auth/login \
 
 ### 4. Use Swagger UI (Recommended)
 
-Visit: `http://178.128.61.145:3011/swagger/`
+Visit: `https://notes.elginbrian.com/swagger/`
 
 1. Click "Authorize" button
 2. Enter: `Bearer YOUR_JWT_TOKEN` (replace with actual token from login)
@@ -117,6 +121,41 @@ Your current setup:
 - **Database**: PostgreSQL with health checks
 - **File Storage**: Volume mounted for uploads
 - **CORS**: Enabled for all origins
+
+## Swagger Debugging Steps
+
+If Swagger is still not accessible after rebuilding:
+
+### 1. Test Debug Endpoint
+
+```bash
+curl https://notes.elginbrian.com/debug/docs
+```
+
+### 2. Check if docs directory exists in container
+
+```bash
+docker-compose exec app ls -la docs/
+```
+
+### 3. Verify Swagger files are generated
+
+```bash
+docker-compose exec app cat docs/swagger.json | head -20
+```
+
+### 4. Check application logs
+
+```bash
+docker-compose logs app | grep -i swagger
+```
+
+### 5. Rebuild with no cache
+
+```bash
+docker-compose down
+docker-compose up --build --no-cache
+```
 
 ## Common Issues & Solutions
 
