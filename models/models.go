@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -17,6 +16,14 @@ type User struct {
 	Notes     []Note    `json:"notes,omitempty" gorm:"foreignKey:UserID"`
 }
 
+type AuthUser struct {
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type Note struct {
 	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	Title       string    `json:"title" gorm:"not null"`
@@ -24,10 +31,8 @@ type Note struct {
 	ImagePath   string    `json:"image_path,omitempty"`
 	ImageURL    string    `json:"image_url,omitempty" gorm:"-"`
 	UserID      uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
-	User        User      `json:"user,omitempty" gorm:"foreignKey:UserID"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 type LoginRequest struct {
@@ -51,20 +56,62 @@ type UpdateNoteRequest struct {
 	Content string `json:"content"`
 }
 
-type AuthResponse struct {
-	Token string `json:"token"`
-	User  User   `json:"user"`
+// Standard API Response wrapper following REST best practices
+type APIResponse struct {
+	Status  string      `json:"status"`
+	Message string      `json:"message,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
 }
 
-// Response models for Swagger documentation
-type NotesResponse struct {
+// Auth response payload
+type AuthData struct {
+	Token string   `json:"token"`
+	User  AuthUser `json:"user"`
+}
+
+// Notes list response payload
+type NotesData struct {
 	Notes []Note `json:"notes"`
+	Count int    `json:"count"`
+}
+
+// Single note response payload (for create, update, get)
+type NoteData struct {
+	Note Note `json:"note"`
+}
+
+// Success message response payload
+type MessageData struct {
+	Message string `json:"message"`
+}
+
+// Specific response types for Swagger documentation
+type AuthSuccessResponse struct {
+	Status  string   `json:"status"`
+	Message string   `json:"message"`
+	Data    AuthData `json:"data"`
+}
+
+type NotesSuccessResponse struct {
+	Status  string    `json:"status"`
+	Message string    `json:"message"`
+	Data    NotesData `json:"data"`
+}
+
+type NoteSuccessResponse struct {
+	Status  string   `json:"status"`
+	Message string   `json:"message"`
+	Data    NoteData `json:"data"`
+}
+
+type MessageSuccessResponse struct {
+	Status  string      `json:"status"`
+	Message string      `json:"message"`
+	Data    MessageData `json:"data"`
 }
 
 type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
-type MessageResponse struct {
-	Message string `json:"message"`
+	Status string `json:"status"`
+	Error  string `json:"error"`
 }

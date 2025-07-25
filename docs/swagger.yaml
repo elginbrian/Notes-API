@@ -1,15 +1,39 @@
 basePath: /
 definitions:
-  models.AuthResponse:
+  models.AuthData:
     properties:
       token:
         type: string
       user:
-        $ref: '#/definitions/models.User'
+        $ref: '#/definitions/models.AuthUser'
+    type: object
+  models.AuthSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.AuthData'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  models.AuthUser:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
     type: object
   models.ErrorResponse:
     properties:
       error:
+        type: string
+      status:
         type: string
     type: object
   models.LoginRequest:
@@ -23,9 +47,18 @@ definitions:
     - email
     - password
     type: object
-  models.MessageResponse:
+  models.MessageData:
     properties:
       message:
+        type: string
+    type: object
+  models.MessageSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.MessageData'
+      message:
+        type: string
+      status:
         type: string
     type: object
   models.Note:
@@ -44,17 +77,40 @@ definitions:
         type: string
       updated_at:
         type: string
-      user:
-        $ref: '#/definitions/models.User'
       user_id:
         type: string
     type: object
-  models.NotesResponse:
+  models.NoteData:
     properties:
+      note:
+        $ref: '#/definitions/models.Note'
+    type: object
+  models.NoteSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.NoteData'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  models.NotesData:
+    properties:
+      count:
+        type: integer
       notes:
         items:
           $ref: '#/definitions/models.Note'
         type: array
+    type: object
+  models.NotesSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.NotesData'
+      message:
+        type: string
+      status:
+        type: string
     type: object
   models.RegisterRequest:
     properties:
@@ -71,24 +127,7 @@ definitions:
     - name
     - password
     type: object
-  models.User:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      notes:
-        items:
-          $ref: '#/definitions/models.Note'
-        type: array
-      updated_at:
-        type: string
-    type: object
-host: localhost:3000
+host: notes.elginbrian.com
 info:
   contact:
     email: support@notesapi.com
@@ -116,7 +155,7 @@ paths:
         "200":
           description: Login successful
           schema:
-            $ref: '#/definitions/models.AuthResponse'
+            $ref: '#/definitions/models.AuthSuccessResponse'
         "400":
           description: Invalid request body
           schema:
@@ -150,7 +189,7 @@ paths:
         "201":
           description: User registered successfully
           schema:
-            $ref: '#/definitions/models.AuthResponse'
+            $ref: '#/definitions/models.AuthSuccessResponse'
         "400":
           description: Invalid request body
           schema:
@@ -178,7 +217,7 @@ paths:
         "200":
           description: List of notes
           schema:
-            $ref: '#/definitions/models.NotesResponse'
+            $ref: '#/definitions/models.NotesSuccessResponse'
         "401":
           description: Unauthorized
           schema:
@@ -217,7 +256,7 @@ paths:
         "201":
           description: Note created successfully
           schema:
-            $ref: '#/definitions/models.Note'
+            $ref: '#/definitions/models.NoteSuccessResponse'
         "400":
           description: Bad request
           schema:
@@ -252,7 +291,7 @@ paths:
         "200":
           description: Note deleted successfully
           schema:
-            $ref: '#/definitions/models.MessageResponse'
+            $ref: '#/definitions/models.MessageSuccessResponse'
         "401":
           description: Unauthorized
           schema:
@@ -286,7 +325,7 @@ paths:
         "200":
           description: Note details
           schema:
-            $ref: '#/definitions/models.Note'
+            $ref: '#/definitions/models.NoteSuccessResponse'
         "401":
           description: Unauthorized
           schema:
@@ -333,7 +372,7 @@ paths:
         "200":
           description: Note updated successfully
           schema:
-            $ref: '#/definitions/models.Note'
+            $ref: '#/definitions/models.NoteSuccessResponse'
         "400":
           description: Bad request
           schema:

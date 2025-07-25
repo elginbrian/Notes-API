@@ -46,7 +46,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Login successful",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthResponse"
+                            "$ref": "#/definitions/models.AuthSuccessResponse"
                         }
                     },
                     "400": {
@@ -98,7 +98,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User registered successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.AuthResponse"
+                            "$ref": "#/definitions/models.AuthSuccessResponse"
                         }
                     },
                     "400": {
@@ -144,7 +144,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of notes",
                         "schema": {
-                            "$ref": "#/definitions/models.NotesResponse"
+                            "$ref": "#/definitions/models.NotesSuccessResponse"
                         }
                     },
                     "401": {
@@ -203,7 +203,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Note created successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.Note"
+                            "$ref": "#/definitions/models.NoteSuccessResponse"
                         }
                     },
                     "400": {
@@ -258,7 +258,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Note details",
                         "schema": {
-                            "$ref": "#/definitions/models.Note"
+                            "$ref": "#/definitions/models.NoteSuccessResponse"
                         }
                     },
                     "401": {
@@ -329,7 +329,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Note updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.Note"
+                            "$ref": "#/definitions/models.NoteSuccessResponse"
                         }
                     },
                     "400": {
@@ -388,7 +388,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Note deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/models.MessageResponse"
+                            "$ref": "#/definitions/models.MessageSuccessResponse"
                         }
                     },
                     "401": {
@@ -414,14 +414,48 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AuthResponse": {
+        "models.AuthData": {
             "type": "object",
             "properties": {
                 "token": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/models.User"
+                    "$ref": "#/definitions/models.AuthUser"
+                }
+            }
+        },
+        "models.AuthSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.AuthData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AuthUser": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -429,6 +463,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -449,10 +486,24 @@ const docTemplate = `{
                 }
             }
         },
-        "models.MessageResponse": {
+        "models.MessageData": {
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MessageSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.MessageData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -481,22 +532,58 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string"
                 },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "user_id": {
                     "type": "string"
                 }
             }
         },
-        "models.NotesResponse": {
+        "models.NoteData": {
             "type": "object",
             "properties": {
+                "note": {
+                    "$ref": "#/definitions/models.Note"
+                }
+            }
+        },
+        "models.NoteSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.NoteData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NotesData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
                 "notes": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Note"
                     }
+                }
+            }
+        },
+        "models.NotesSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.NotesData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -520,32 +607,6 @@ const docTemplate = `{
                     "minLength": 6
                 }
             }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Note"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {
@@ -561,7 +622,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "notes.elginbrian.com",
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},
 	Title:            "Notes API",

@@ -3,7 +3,7 @@
 // @description A comprehensive Notes API built with Go Fiber, featuring JWT authentication, CRUD operations, and image uploads
 // @contact.name API Support
 // @contact.email support@notesapi.com
-// @host localhost:3000
+// @host notes.elginbrian.com
 // @BasePath /
 // @schemes http https
 

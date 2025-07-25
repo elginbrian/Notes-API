@@ -20,7 +20,7 @@ import (
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} models.NotesResponse "List of notes" 
+// @Success 200 {object} models.NotesSuccessResponse "List of notes"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/notes [get]
@@ -29,8 +29,9 @@ func GetNotes(c *fiber.Ctx) error {
 
 	var notes []models.Note
 	if err := database.DB.Where("user_id = ?", userID).Find(&notes).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch notes",
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Failed to fetch notes",
 		})
 	}
 
@@ -41,8 +42,13 @@ func GetNotes(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(fiber.Map{
-		"notes": notes,
+	return c.JSON(models.NotesSuccessResponse{
+		Status:  "success",
+		Message: "Notes retrieved successfully",
+		Data: models.NotesData{
+			Notes: notes,
+			Count: len(notes),
+		},
 	})
 }
 
@@ -54,7 +60,7 @@ func GetNotes(c *fiber.Ctx) error {
 // @Produce json
 // @Security BearerAuth
 // @Param id path string true "Note ID"
-// @Success 200 {object} models.Note "Note details"
+// @Success 200 {object} models.NoteSuccessResponse "Note details"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 404 {object} models.ErrorResponse "Note not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
@@ -65,8 +71,9 @@ func GetNote(c *fiber.Ctx) error {
 
 	var note models.Note
 	if err := database.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Note not found",
+		return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Note not found",
 		})
 	}
 
@@ -75,7 +82,13 @@ func GetNote(c *fiber.Ctx) error {
 			c.Protocol(), c.Get("Host"), filepath.Base(note.ImagePath))
 	}
 
-	return c.JSON(note)
+	return c.JSON(models.NoteSuccessResponse{
+		Status:  "success",
+		Message: "Note retrieved successfully",
+		Data: models.NoteData{
+			Note: note,
+		},
+	})
 }
 
 // CreateNote godoc
@@ -88,7 +101,7 @@ func GetNote(c *fiber.Ctx) error {
 // @Param title formData string true "Note title"
 // @Param content formData string false "Note content"
 // @Param image formData file false "Image file (JPEG, PNG, GIF)"
-// @Success 201 {object} models.Note "Note created successfully"
+// @Success 201 {object} models.NoteSuccessResponse "Note created successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
@@ -98,8 +111,9 @@ func CreateNote(c *fiber.Ctx) error {
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid multipart form",
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Invalid multipart form",
 		})
 	}
 
@@ -114,8 +128,9 @@ func CreateNote(c *fiber.Ctx) error {
 	}
 
 	if title == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Title is required",
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Title is required",
 		})
 	}
 
@@ -130,8 +145,9 @@ func CreateNote(c *fiber.Ctx) error {
 		file := files[0]
 		
 		if !isValidImageType(file.Header.Get("Content-Type")) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid image type. Only JPEG, PNG, and GIF are allowed",
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+				Status: "error",
+				Error:  "Invalid image type. Only JPEG, PNG, and GIF are allowed",
 			})
 		}
 
@@ -140,15 +156,17 @@ func CreateNote(c *fiber.Ctx) error {
 		
 		uploadsDir := "uploads"
 		if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to create uploads directory",
+			return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+				Status: "error",
+				Error:  "Failed to create uploads directory",
 			})
 		}
 
 		savePath := filepath.Join(uploadsDir, filename)
 		if err := c.SaveFile(file, savePath); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to save image",
+			return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+				Status: "error",
+				Error:  "Failed to save image",
 			})
 		}
 
@@ -156,8 +174,9 @@ func CreateNote(c *fiber.Ctx) error {
 	}
 
 	if err := database.DB.Create(&note).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to create note",
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Failed to create note",
 		})
 	}
 
@@ -180,7 +199,7 @@ func CreateNote(c *fiber.Ctx) error {
 // @Param title formData string false "Note title"
 // @Param content formData string false "Note content"
 // @Param image formData file false "Image file (JPEG, PNG, GIF)"
-// @Success 200 {object} models.Note "Note updated successfully"
+// @Success 200 {object} models.NoteSuccessResponse "Note updated successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad request"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 404 {object} models.ErrorResponse "Note not found"
@@ -192,15 +211,17 @@ func UpdateNote(c *fiber.Ctx) error {
 
 	var note models.Note
 	if err := database.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Note not found",
+		return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Note not found",
 		})
 	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid multipart form",
+		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Invalid multipart form",
 		})
 	}
 
@@ -215,8 +236,9 @@ func UpdateNote(c *fiber.Ctx) error {
 		file := files[0]
 		
 		if !isValidImageType(file.Header.Get("Content-Type")) {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid image type. Only JPEG, PNG, and GIF are allowed",
+			return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+				Status: "error",
+				Error:  "Invalid image type. Only JPEG, PNG, and GIF are allowed",
 			})
 		}
 
@@ -229,15 +251,17 @@ func UpdateNote(c *fiber.Ctx) error {
 		
 		uploadsDir := "uploads"
 		if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to create uploads directory",
+			return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+				Status: "error",
+				Error:  "Failed to create uploads directory",
 			})
 		}
 
 		savePath := filepath.Join(uploadsDir, filename)
 		if err := c.SaveFile(file, savePath); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to save image",
+			return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+				Status: "error",
+				Error:  "Failed to save image",
 			})
 		}
 
@@ -245,8 +269,9 @@ func UpdateNote(c *fiber.Ctx) error {
 	}
 
 	if err := database.DB.Save(&note).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to update note",
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Failed to update note",
 		})
 	}
 
@@ -255,7 +280,13 @@ func UpdateNote(c *fiber.Ctx) error {
 			c.Protocol(), c.Get("Host"), filepath.Base(note.ImagePath))
 	}
 
-	return c.JSON(note)
+	return c.JSON(models.NoteSuccessResponse{
+		Status:  "success",
+		Message: "Note updated successfully",
+		Data: models.NoteData{
+			Note: note,
+		},
+	})
 }
 
 // DeleteNote godoc
@@ -266,7 +297,7 @@ func UpdateNote(c *fiber.Ctx) error {
 // @Produce json
 // @Security BearerAuth
 // @Param id path string true "Note ID"
-// @Success 200 {object} models.MessageResponse "Note deleted successfully"
+// @Success 200 {object} models.MessageSuccessResponse "Note deleted successfully"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 404 {object} models.ErrorResponse "Note not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
@@ -277,8 +308,9 @@ func DeleteNote(c *fiber.Ctx) error {
 
 	var note models.Note
 	if err := database.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Note not found",
+		return c.Status(fiber.StatusNotFound).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Note not found",
 		})
 	}
 
@@ -287,13 +319,18 @@ func DeleteNote(c *fiber.Ctx) error {
 	}
 
 	if err := database.DB.Delete(&note).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to delete note",
+		return c.Status(fiber.StatusInternalServerError).JSON(models.ErrorResponse{
+			Status: "error",
+			Error:  "Failed to delete note",
 		})
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "Note deleted successfully",
+	return c.JSON(models.MessageSuccessResponse{
+		Status:  "success",
+		Message: "Note deleted successfully",
+		Data: models.MessageData{
+			Message: "Note deleted successfully",
+		},
 	})
 }
 
